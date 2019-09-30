@@ -1,0 +1,49 @@
+From 14d319b1856b86e593e01abd0a1e3c2d63b52a8a Mon Sep 17 00:00:00 2001
+From: Adam Ford <aford173@gmail.com>
+Date: Thu, 23 May 2019 14:11:30 -0500
+Subject: [PATCH] spl: imx6: Let spl_boot_device return USDHC1 or USDHC2
+
+Currently, when the spl_boot_device checks the boot device, it
+will only return MMC1 when it's either sd or eMMC regardless
+of whether or not it's MMC1 or MMC2.  This is a problem when
+booting from MMC2 if MMC isn't being manually configured like in
+the DM_SPL case with SPL_OF_CONTROL.
+
+This patch will check the register and return either MMC1 or MMC2.
+
+Signed-off-by: Adam Ford <aford173@gmail.com>
+---
+ arch/arm/mach-imx/spl.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/mach-imx/spl.c b/arch/arm/mach-imx/spl.c
+index 9f1e0f6a72..1f230aca33 100644
+--- a/arch/arm/mach-imx/spl.c
++++ b/arch/arm/mach-imx/spl.c
+@@ -24,6 +24,7 @@ u32 spl_boot_device(void)
+ {
+ 	unsigned int bmode = readl(&src_base->sbmr2);
+ 	u32 reg = imx6_src_get_boot_mode();
++	u32 mmc_index = ((reg >> 11) & 0x03);
+ 
+ 	/*
+ 	 * Check for BMODE if serial downloader is enabled
+@@ -84,11 +85,12 @@ u32 spl_boot_device(void)
+ 	/* SD/eSD: 8.5.3, Table 8-15  */
+ 	case IMX6_BMODE_SD:
+ 	case IMX6_BMODE_ESD:
+-		return BOOT_DEVICE_MMC1;
+-	/* MMC/eMMC: 8.5.3 */
+ 	case IMX6_BMODE_MMC:
+ 	case IMX6_BMODE_EMMC:
+-		return BOOT_DEVICE_MMC1;
++		if (mmc_index == 1)
++			return BOOT_DEVICE_MMC2;
++		else
++			return BOOT_DEVICE_MMC1;
+ 	/* NAND Flash: 8.5.2, Table 8-10 */
+ 	case IMX6_BMODE_NAND_MIN ... IMX6_BMODE_NAND_MAX:
+ 		return BOOT_DEVICE_NAND;
+-- 
+2.21.0
+

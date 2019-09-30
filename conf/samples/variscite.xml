@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<manifest>
+  <remote fetch="git://git.yoctoproject.org/" name="poky"/>
+  <remote fetch="https://github.com/linumiz/" name="linumiz"/>
+
+  <project remote="poky" revision="warrior" name="poky" path="variscite"/>
+  <project remote="linumiz" revision="master" name="meta-variscite" path="variscite/meta-variscite"/>
+</manifest>

@@ -1,0 +1,41 @@
+From bad4cb318a197928e73cd253183aeb3ff116b22c Mon Sep 17 00:00:00 2001
+From: Saravanan Sekar <saravanan@linumiz.com>
+Date: Sun, 4 Aug 2019 15:08:14 +0200
+Subject: [PATCH] imx: variscite: Fix regression of SPL and U-boot booting
+
+1. Commit 3a7c45f6a772 ("simple-bus: add DM_FLAG_PRE_RELOC flag to
+simple-bus driver") causes some i.MX boards that were converted
+to DM, such as warp7, to fail to boot.
+
+As explained by Lukas Auer:
+
+"With the patch, U-Boot probes the drivers for devices under simple-bus
+device tree nodes in the pre-relocation device model. The default value
+of CONFIG_SYS_MALLOC_F_LEN (0x400) leaves U-Boot with not enough memory to
+do this, causing it to hang."
+
+Fix this problem by providing a convenient default value for
+CONFIG_SYS_MALLOC_F_LEN.
+
+2. CONFIG_SPL_TEXT_BASE was moved to Kconfig, so added in defconfig
+"configs: move CONFIG_SPL_TEXT_BASE to Kconfig"
+(sha1: f89d6133eef2e068f9c33853b6584d7fcbfa9d2e)
+
+Signed-off-by: Saravanan Sekar <saravanan@linumiz.com>
+---
+ configs/variscite_dart6ul_defconfig | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/configs/variscite_dart6ul_defconfig b/configs/variscite_dart6ul_defconfig
+index 55f4ff59d2..6a44962c9a 100644
+--- a/configs/variscite_dart6ul_defconfig
++++ b/configs/variscite_dart6ul_defconfig
+@@ -51,3 +51,5 @@ CONFIG_USB_GADGET_PRODUCT_NUM=0xa4a5
+ CONFIG_CI_UDC=y
+ CONFIG_USB_GADGET_DOWNLOAD=y
+ CONFIG_LZO=y
++CONFIG_SPL_TEXT_BASE=0x00908000
++CONFIG_SYS_MALLOC_F_LEN=0x4000
+-- 
+2.17.1
+
